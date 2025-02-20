@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+script_dir="$(cd $(dirname "${BASH_SOURCE[0]}") && pwd)"
+filter=""
+dry="0"
+
+log() {
+    if [[ $dry == "1" ]]; then
+        echo "[DRY_RUN]: $@"
+    else
+        echo "$@"
+    fi
+}
+
+execute() {
+    log "execute $@"
+    if [[ $dry == "1" ]]; then
+        return
+    fi
+    "$@"
+}
+
+# Check if Homebrew is installed
+if ! command -v brew &>/dev/null; then
+    log "Homebrew not found. Installing..."
+
+    # Check the OS
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # Ubuntu prerequisites
+        execute sudo apt-get update
+        execute sudo apt-get install -y build-essential procps curl file git
+    fi
+
+    # Install Homebrew
+    execute /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    log "Homebrew is already installed"
+fi
+
+while [[ $# > 0 ]]; do
+    if [[ $1 == "--dry" ]]; then
+        dry="1"
+    else
+        filter="$1"
+    fi
+    shift
+done
+
+log "$script_dir -- $filter"
+
+cd $script_dir
+scripts=$(find runs -maxdepth 1 -mindepth 1 -perm +111 -type f)
+
+for script in $scripts; do
+    if echo "$script" | grep -qv "$filter"; then
+        log "filtered: $script"
+        continue
+    fi
+    log "running script: $script"
+    execute ./$script
+done
