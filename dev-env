@@ -29,7 +29,6 @@ while [[ $# > 0 ]]; do
     shift
 done
 
-
 log "------------------------ dev-env ------------------------"
 
 copy_dir() {
@@ -41,9 +40,18 @@ copy_dir() {
     for dir in $dirs; do
         execute rm -rf $to/$dir
         execute cp -r $dir $to/$dir
-        
+
     done
     popd >/dev/null
+}
+
+copy_file() {
+    from="$1"
+    to="$2"
+    name=$(basename $from)
+
+    execute rm $to/$name
+    execute cp $from $to/$name
 }
 
 copy_dir ./.config $HOME/.config
