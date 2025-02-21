@@ -49,8 +49,9 @@ done
 log "$script_dir -- $filter"
 
 cd $script_dir
-scripts=$(find runs -maxdepth 1 -mindepth 1 -perm +111 -type f)
 
+# Run for all platforms
+scripts=$(find runs -maxdepth 1 -mindepth 1 -perm +111 -type f)
 for script in $scripts; do
     if echo "$script" | grep -qv "$filter"; then
         log "filtered: $script"
@@ -59,3 +60,30 @@ for script in $scripts; do
     log "running script: $script"
     execute ./$script
 done
+
+# Run for mac only 
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    log "running for mac"
+    scripts=$(find runs-mac -maxdepth 1 -mindepth 1 -perm +111 -type f)
+    for script in $scripts; do
+        if echo "$script" | grep -qv "$filter"; then
+            log "filtered: $script"
+            continue
+        fi
+        log "running script: $script"
+        execute ./$script
+    done
+fi
+
+# Run for linux only
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    scripts=$(find runs-linux -maxdepth 1 -mindepth 1 -perm +111 -type f)
+    for script in $scripts; do
+        if echo "$script" | grep -qv "$filter"; then
+            log "filtered: $script"
+            continue
+        fi
+        log "running script: $script"
+        execute ./$script
+    done
+fi
