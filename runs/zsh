@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Check if zsh is already installed
+if ! command -v zsh &>/dev/null; then
+    echo "zsh is not installed. Installing..."
+    # Install zsh using Homebrew
+    brew install zsh
+else
+    echo "zsh is already installed"
+fi
+
+# Check if oh-my-zsh is installed
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "oh-my-zsh is not installed. Installing..."
+    # Install oh-my-zsh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+else
+    echo "oh-my-zsh is already installed"
+fi
+
+# Set zsh as default shell if it's not already
+if [[ "$SHELL" != *"zsh"* ]]; then
+    echo "Setting zsh as default shell..."
+    chsh -s "$(command -v zsh)"
+else
+    echo "zsh is already the default shell"
+fi
+
+echo "zsh and oh-my-zsh setup completed successfully!"
